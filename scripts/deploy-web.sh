@@ -25,7 +25,7 @@ echo "→ Build finance-web:latest on server"
 ssh "${SSH_OPTS[@]}" "$HOST" bash -s <<EOF
 set -euo pipefail
 cd '${REMOTE_RELEASE}'
-docker build -f Dockerfile.web -t finance-web:latest .
+docker build -f Dockerfile.web --build-arg NEXT_PUBLIC_DEMO_RECIPIENT_EMAIL="${NEXT_PUBLIC_DEMO_RECIPIENT_EMAIL:-}" -t finance-web:latest .
 ln -sfn '${REMOTE_RELEASE}' '${REMOTE_ROOT}/current'
 cd /opt/nacharbeit
 docker compose up -d web

@@ -13,6 +13,15 @@ COPY apps/web ./apps/web
 COPY src ./src
 COPY berater-config.json demo-transcript.json ./
 
+# NEXT_PUBLIC_* is inlined into the client bundle at BUILD time. The server route
+# reads it at runtime, so it must be present here (before `pnpm build`) — otherwise
+# the client sends the default recipient while the server expects the override and
+# the live-send allowlist silently rejects → mock fallback on stage. ENV (set before
+# the build) covers both the build-time inline and runtime. Empty → demo-config falls
+# back to the default. Pass via: docker build --build-arg NEXT_PUBLIC_DEMO_RECIPIENT_EMAIL=…
+ARG NEXT_PUBLIC_DEMO_RECIPIENT_EMAIL=
+ENV NEXT_PUBLIC_DEMO_RECIPIENT_EMAIL=$NEXT_PUBLIC_DEMO_RECIPIENT_EMAIL
+
 RUN pnpm config set dangerouslyAllowAllBuilds true \
   && pnpm install --frozen-lockfile \
   && pnpm --filter web build
